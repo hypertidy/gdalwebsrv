@@ -1,0 +1,100 @@
+---
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# gdalwebsrv
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of gdalwebsrv is to provide access to some online image servers using standard tools. 
+
+This package contains no code for *reading rasters*, it's simply a convenient way to access *configuration files* that can be used as sources of web imagery. 
+
+
+
+WIP, currently pretty limited there are only 5 sources (from 17 ) that we allow in for now while things are figured out. 
+
+## Installation
+
+
+``` r
+remotes::install_github("hypertidy/gdalwebsrv")
+```
+
+
+You can install the released version of gdalwebsrv from [CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("gdalwebsrv")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(gdalwebsrv)
+
+available_sources()
+
+srcfile <- server_file("wms_virtualearth")
+
+raster::brick(srcfile)
+
+stars::read_stars(srcfile, proxy = TRUE)
+
+ex <- c(xmin = 1e7, xmax = 2e7, ymin = -6e6, -1e6)
+
+## not sure how to *read* sensibly from those yet so rely on lazyraster for now
+  library(lazyraster)
+  lr <- lazyraster(srcfile)
+
+  cr <- crop(lr, ex)
+  rr <- raster::brick(as_raster(cr, band = 1), 
+              as_raster(cr, band = 2), 
+            as_raster(cr, band = 3))
+
+  
+  library(raster)
+plotRGB(rr)
+
+
+read_ex <- function(name, ex) {
+  library(lazyraster)
+  srcfile <- server_file(name)
+  lr <- lazyraster(srcfile)
+
+  cr <- crop(lr, ex)
+  rr <- raster::brick(as_raster(cr, band = 1), 
+              as_raster(cr, band = 2), 
+            as_raster(cr, band = 3))
+
+  rr
+}
+srcs <- available_sources()
+for (i in seq_along(srcs)) {
+  plotRGB(read_ex(srcs[i], ex))
+  text(ex[2] - 1.5e6, ex[4] - 1e6, lab = srcs[i], col = "white")
+}
+
+
+```
+
+
+## Code of Conduct
+  
+Please note that the gdalwebsrv project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
