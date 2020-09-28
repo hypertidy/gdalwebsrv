@@ -57,3 +57,14 @@ server_file <- function(name) {
   if (is.na(pos)) stop(sprintf("cannot find server %s", name))
   system.file(gdal_web_sources[["file"]][pos], package = "gdalwebsrv", mustWork = TRUE)
 }
+
+#' GDAL terrain source (LERC)
+#'
+#' Find file providing ESRI server for terrain, LERC.
+#' @export
+#' @return character string file path
+#' @examples
+#' lerc_file()
+lerc_file <- function() {
+  system.file("gdalwmsxml/frmt_wms_arcgis_terrain_tms_lerc.xml", package = "gdalwebsrv", mustWork = TRUE)
+}
