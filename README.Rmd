@@ -51,46 +51,17 @@ library(gdalwebsrv)
 
 available_sources()
 
-srcfile <- server_file("wms_virtualearth")
+srcfile <- server_file("wms_googlemaps_tms")
 
-raster::brick(srcfile)
+library(gdalio)
+g <- gdalio_graphics(srcfile)
+plot(g)
 
-stars::read_stars(srcfile, proxy = TRUE)
-
-ex <- c(xmin = 1e7, xmax = 2e7, ymin = -6e6, -1e6)
-
-## not sure how to *read* sensibly from those yet so rely on lazyraster for now
-  library(lazyraster)
-  lr <- lazyraster(srcfile)
-
-  cr <- crop(lr, ex)
-  rr <- raster::brick(as_raster(cr, band = 1), 
-              as_raster(cr, band = 2), 
-            as_raster(cr, band = 3))
-
-  
-  library(raster)
-plotRGB(rr)
-
-
-read_ex <- function(name, ex) {
-  library(lazyraster)
-  srcfile <- server_file(name)
-  lr <- lazyraster(srcfile)
-
-  cr <- crop(lr, ex)
-  rr <- raster::brick(as_raster(cr, band = 1), 
-              as_raster(cr, band = 2), 
-            as_raster(cr, band = 3))
-
-  rr
-}
-srcs <- available_sources()
-for (i in seq_along(srcs)) {
-  plotRGB(read_ex(srcs[i], ex))
-  text(ex[2] - 1.5e6, ex[4] - 1e6, lab = srcs[i], col = "white")
-}
-
+gdalio_set_default_grid(list(extent = c(-1, 1, -1, 1) * 1e6, 
+                            dimension = c(1024, 1024), 
+                            projection = "+proj=laea +lon_0=147 +lat_0=-42"))
+l <- gdalio_graphics(srcfile)
+plot(l)
 
 ```
 
