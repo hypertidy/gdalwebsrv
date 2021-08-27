@@ -29,7 +29,7 @@ NULL
 #' @examples
 #' available_sources()
 available_sources <- function() {
-  gdal_web_sources[["name"]]
+  gdal_web_sources_internal[["name"]]
 }
 
 #' GDAL web sources files

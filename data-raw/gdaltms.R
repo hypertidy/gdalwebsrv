@@ -33,5 +33,6 @@ proj0 <- c(10, 11, 12, 13, 15, 16) + 5 ## plus 5 since added new google ones
 
 gdal_web_sources <- gdal_web_sources[-c(limit, bad, band1, proj0), ]
 usethis::use_data(gdal_web_sources)
-usethis::use_data(gdal_web_sources, internal = TRUE)
+gdal_web_sources_internal <- gdal_web_sources
+usethis::use_data(gdal_web_sources_internal, internal = TRUE)
 
