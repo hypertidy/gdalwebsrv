@@ -1,5 +1,4 @@
 
-
 #' gdalwebsrv
 #'
 #' Provides files from the GDAL project to access online imagery servers.
@@ -30,7 +29,7 @@ NULL
 #' @examples
 #' available_sources()
 available_sources <- function() {
-  gdal_web_sources_internal[["name"]]
+  gdalwebsrv::gdal_web_sources[["name"]]
 }
 
 #' GDAL web sources files
@@ -49,9 +48,9 @@ available_sources <- function() {
 server_file <- function(name) {
   name <- name[1L]
   ## note kludgy reconstruction of actual file
-  pos <- match(sprintf("frmt_%s.xml", name), basename(gdal_web_sources[["file"]]))
+  pos <- match(sprintf("frmt_%s.xml", name), basename(gdalwebsrv::gdal_web_sources[["file"]]))
   if (is.na(pos)) stop(sprintf("cannot find server %s", name))
-  system.file(gdal_web_sources[["file"]][pos], package = "gdalwebsrv", mustWork = TRUE)
+  system.file(gdalwebsrv::gdal_web_sources[["file"]][pos], package = "gdalwebsrv", mustWork = TRUE)
 }
 
 #' GDAL terrain source (LERC)
