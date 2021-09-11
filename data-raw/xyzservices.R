@@ -12,7 +12,12 @@ as_tibble_with_matrix <- function(x) {
 
   x$subdomains <- paste0(unlist(x$subdomains), collapse = "") ## technically we are missing ""
   if (has_matrix(x)) {
-    x$bounds <- list(tibble::as_tibble(setNames(as.list(c(x$bounds)), c("xmin", "ymin", "xmax", "ymax"))))
+    ## some of these are in the wrong order
+    BOUNDS <- c(x$bounds)
+    BOUNDS[1:2] <- sort(BOUNDS[1:2]) ## lat
+    BOUNDS[3:4] <- sort(BOUNDS[3:4]) ## lon
+
+    x$bounds <- list(tibble::as_tibble(setNames(as.list(BOUNDS), c("ymin", "ymax", "xmin", "xmax"))))
 
     out <- tibble::as_tibble(x) %>% tidyr::unnest(bounds)
   } else {
@@ -24,8 +29,8 @@ as_tibble_with_matrix <- function(x) {
 
   ## these are exceptions to make, we don't have a data token for subdomain so just use "a" (but see below!)
   ## server, some have abcd in $subdomains
-  out$s <- ""
-  if ("subdomains" %in% names(out)) {
+  out$s <- "a"  ## some don't have the subdomains field i.e.  "url": "https://maps-{s}.onemap.sg/v3/{variant}/{z}/{x}/{y}.png",
+  if ("subdomains" %in% names(out) && nchar(out$subdomains) > 0) {
     out$s <- substr(out$subdomains, 1, 1)
 
   }
@@ -34,6 +39,7 @@ as_tibble_with_matrix <- function(x) {
   out$y <- "{y}"
   out$z <- "{z}"
   out$r <- ""  ## r is "@2x" for doubling the dimension of an image
+#  if (grepl("https://maps-\\{s}.onemap.sg", out$url)) browser()
   out$url <- with(out, glue::glue(url))
   out
 }
@@ -55,6 +61,16 @@ for (i in seq_along(j)) {
 }
 
 xyzservices <- bind_rows(l)
+
+A <- 6378137
+radians <- function(x) x * pi/180
+merckx <- function(lon) A * radians(lon)
+mercky <- function(lat) A * log(tan((pi * 0.25) + (0.5 * radians(lat))))
+
+xyzservices <- xyzservices %>%
+                  mutate(xmin = merckx(xmin), xmax = merckx(xmax),
+                         ymin = mercky(ymin), ymax = mercky(ymax))
+
 
 # there are 8 ways of specifying an API key
 #which(map_lgl(xyzservices, ~any(grepl("insert", .x))))
