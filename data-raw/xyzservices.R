@@ -6,12 +6,19 @@ x <- unlist(j)
 
 has_matrix <- function(x) any(purrr::map_lgl(x, is.matrix))
 as_tibble_with_matrix <- function(x) {
+  ## some subdomains are arrays, but still the same set of abcd or 01234
+  # unique(xyzservices$subdomains)
+  # [1] ""     "abcd" "1234" "0123" "12"
+
+  x$subdomains <- paste0(unlist(x$subdomains), collapse = "") ## technically we are missing ""
   if (has_matrix(x)) {
     x$bounds <- list(tibble::as_tibble(setNames(as.list(c(x$bounds)), c("xmin", "ymin", "xmax", "ymax"))))
+
     out <- tibble::as_tibble(x) %>% tidyr::unnest(bounds)
   } else {
     out <- tibble::as_tibble(x)
   }
+  if (any(lengths(x) > 1)) stop("still some arrays to unpack")
   ## flesh out the keys now
   #scan("", 1)
 
@@ -20,7 +27,7 @@ as_tibble_with_matrix <- function(x) {
   out$s <- ""
   if ("subdomains" %in% names(out)) {
     out$s <- substr(out$subdomains, 1, 1)
-    browser()
+
   }
 
   out$x <- "{x}"
