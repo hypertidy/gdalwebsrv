@@ -39,6 +39,9 @@ as_tibble_with_matrix <- function(x) {
   out$y <- "{y}"
   out$z <- "{z}"
   out$r <- ""  ## r is "@2x" for doubling the dimension of an image
+  out$time <- "2020-01-01"
+  ## $time is getting smashed as in
+  # https://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_Land_Surface_Temp_Day/default/ <here> {time} /GoogleMapsCompatible_Level7/${z}/${y}/${x}.png<
 #  if (grepl("https://maps-\\{s}.onemap.sg", out$url)) browser()
   out$url <- with(out, glue::glue(url))
   out

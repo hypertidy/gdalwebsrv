@@ -38,7 +38,7 @@ g <- list(extent = c(-1, 1, -1, 1) * maxex,
 gdalio::gdalio_set_default_grid(g)
 
 xyzservices$tileSize[is.na(xyzservices$tileSize)] <- 256
-xyzservices <- filter(xyzservices, is.na(xmin) & is.na(status) & !grepl("insert", url ))
+xyzservices <- filter(xyzservices, !is.na(xmin) & is.na(status) & !grepl("insert", url ))
 
 
 par(mar = rep(0, 4)) #, mfrow = n2mfrow(sum(xyzservices$good)))
@@ -48,6 +48,7 @@ for (i in seq_len(nrow(xyzservices))) {
  #if (!xyzservices$good[i]) next;
   this0 <- xyzservices[i, ]  %>%
      mutate(url = gsub("\\{", "\\$\\{", url))
+  this0$time <- "2021-01-01"
   xml <- with(this0, glue::glue(gwms))
 
   g1 <- list(extent = unlist(select(this0, xmin, xmax, ymin, ymax), use.names = F),
@@ -60,6 +61,8 @@ for (i in seq_len(nrow(xyzservices))) {
   if (!inherits(r, "try-error") && length(unique(r)) > 1) {
     xyzservices$good[i] <- TRUE
     plot(r)
+    print(i)
+#    scan("", 1)
   }
   gdalio::gdalio_set_default_grid(g)
 
