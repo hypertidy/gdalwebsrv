@@ -52,7 +52,7 @@ available_sources <- function() {
 #' server_file(gdal_web_sources$name[1L])
 server_file <- function(name) {
   name <- name[1L]
-  sources <- rbind(gdal_web_sources, aws_web_sources)
+  sources <- web_sources  ## here we might have more ways of getting
   ## note kludgy reconstruction of actual file (FIXME)
   pos <- match(sprintf("frmt_%s.xml", name), basename(sources[["file"]]))
   if (is.na(pos)) pos <- grep(name, basename(sources[["file"]]))
