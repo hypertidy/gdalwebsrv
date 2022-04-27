@@ -4,7 +4,6 @@
 # gdalwebsrv
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 The goal of gdalwebsrv is to provide access to some online image servers
@@ -32,99 +31,85 @@ install.packages("gdalwebsrv")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example to get various kinds of imagery.
+
+Each `server_file()` is a path to a GDAL readable tile server, one of
+each of the `available_sources()`.
 
 ``` r
 library(gdalwebsrv)
 
 available_sources()
-#> [1] "wms_arcgis_mapserver_tms" "wms_bluemarble_s3_tms"   
-#> [3] "wms_googlemaps_tms"       "wms_openstreetmap_tms"   
-#> [5] "wms_virtualearth"
+#>  [1] "wms_arcgis_mapserver_ESRI.WorldImagery_tms"
+#>  [2] "wms_arcgis_terrain_tms_lerc"               
+#>  [3] "wms_bluemarble_s3_tms"                     
+#>  [4] "wms_googlemaps_hybrid_tms"                 
+#>  [5] "wms_googlemaps_satellite_tms"              
+#>  [6] "wms_googlemaps_terrain_tms"                
+#>  [7] "wms_googlemaps_terrainextra_tms"           
+#>  [8] "wms_googlemaps_tms"                        
+#>  [9] "wms_openstreetmap_tms"                     
+#> [10] "wms_virtualearth"
 
-srcfile <- server_file("wms_virtualearth")
-
-raster::brick(srcfile)
-#> Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO"): Discarded
-#> ellps WGS 84 in CRS definition: +proj=merc +a=6378137 +b=6378137 +lat_ts=0
-#> +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs
-#> Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO"): Discarded
-#> datum WGS_1984 in CRS definition
-#> class      : RasterBrick 
-#> dimensions : 134217728, 134217728, 1.80144e+16, 3  (nrow, ncol, ncell, nlayers)
-#> resolution : 0.2985821, 0.2985821  (x, y)
-#> extent     : -20037508, 20037508, -20037508, 20037508  (xmin, xmax, ymin, ymax)
-#> crs        : +proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs 
-#> source     : /perm_storage/home/mdsumner/R/x86_64-pc-linux-gnu-library/4.0/gdalwebsrv/gdalwmsxml/frmt_wms_virtualearth.xml 
-#> names      : frmt_wms_virtualearth.1, frmt_wms_virtualearth.2, frmt_wms_virtualearth.3 
-#> min values :                       0,                       0,                       0 
-#> max values :                     255,                     255,                     255
-
-stars::read_stars(srcfile, proxy = TRUE)
-#> stars_proxy object with 1 attribute in file:
-#> $frmt_wms_virtualearth.xml
-#> [1] "[...]/frmt_wms_virtualearth.xml"
-#> 
-#> dimension(s):
-#>      from        to    offset     delta                      refsys point
-#> x       1 134217728 -20037508  0.298582 Google Maps Global Mercator    NA
-#> y       1 134217728  20037508 -0.298582 Google Maps Global Mercator    NA
-#> band    1         3        NA        NA                          NA    NA
-#>      values    
-#> x      NULL [x]
-#> y      NULL [y]
-#> band   NULL
-
-ex <- c(xmin = 1e7, xmax = 2e7, ymin = -6e6, -1e6)
-
-## not sure how to *read* sensibly from those yet so rely on lazyraster for now
-  library(lazyraster)
-#> 
-#> Attaching package: 'lazyraster'
-#> The following object is masked from 'package:graphics':
-#> 
-#>     plot
-#> The following object is masked from 'package:base':
-#> 
-#>     plot
-  lr <- lazyraster(srcfile)
-
-  cr <- crop(lr, ex)
-  rr <- raster::brick(as_raster(cr, band = 1), 
-              as_raster(cr, band = 2), 
-            as_raster(cr, band = 3))
-
-  
-  library(raster)
-#> Loading required package: sp
-plotRGB(rr)
+## all this package does is keep a list of these 
+gmap_file <- server_file("wms_googlemaps_tms")
 ```
 
-<img src="man/figures/README-example-1.png" width="100%" />
+Now we might use the server one way or another.
 
 ``` r
-
-
-read_ex <- function(name, ex) {
-  library(lazyraster)
-  srcfile <- server_file(name)
-  lr <- lazyraster(srcfile)
-
-  cr <- crop(lr, ex)
-  rr <- raster::brick(as_raster(cr, band = 1), 
-              as_raster(cr, band = 2), 
-            as_raster(cr, band = 3))
-
-  rr
-}
-srcs <- available_sources()
-for (i in seq_along(srcs)) {
-  plotRGB(read_ex(srcs[i], ex))
-  text(ex[2] - 1.5e6, ex[4] - 1e6, lab = srcs[i], col = "white")
-}
+library(gdalio)
+g <- gdalio_graphics(gmap_file)
+plot(g)
 ```
 
-<img src="man/figures/README-example-2.png" width="100%" /><img src="man/figures/README-example-3.png" width="100%" /><img src="man/figures/README-example-4.png" width="100%" /><img src="man/figures/README-example-5.png" width="100%" /><img src="man/figures/README-example-6.png" width="100%" />
+<img src="man/figures/README-read-1.png" width="100%" />
+
+``` r
+gdalio_set_default_grid(list(extent = c(-1, 1, -1, 1) * 1e6, 
+                            dimension = c(1024, 1024), 
+                            projection = "+proj=laea +lon_0=147 +lat_0=-42"))
+gmap <- gdalio_graphics(gmap_file)
+plot(gmap)
+```
+
+<img src="man/figures/README-read-2.png" width="100%" />
+
+``` r
+vmap <- gdalio_graphics(server_file("wms_virtualearth"))
+plot(vmap)
+```
+
+<img src="man/figures/README-read-3.png" width="100%" />
+
+``` r
+temap <-  gdalio_graphics(server_file("wms_googlemaps_terrainextra_tms"))
+plot(temap)
+```
+
+<img src="man/figures/README-read-4.png" width="100%" />
+
+``` r
+omap <- gdalio_graphics(server_file("wms_openstreetmap_tms"))
+plot(omap)
+```
+
+<img src="man/figures/README-read-5.png" width="100%" />
+
+Something different.
+
+``` r
+gdalio_set_default_grid(list(extent = c(-120, -10, -50, 50), 
+                            dimension = c(768, 512)/1.5, 
+                            projection = "+proj=longlat"))
+
+lerc <-  gdalio_matrix(server_file("wms_arcgis_terrain_tms_lerc"), bands = 1)
+image(seq(-120, -10, length.out = nrow(lerc) + 1), 
+          seq(-50, 50, length.out = ncol(lerc) + 1), lerc)
+maps::map(add = TRUE)
+```
+
+<img src="man/figures/README-longlat-1.png" width="100%" />
 
 ## Code of Conduct
 

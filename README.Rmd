@@ -44,56 +44,56 @@ install.packages("gdalwebsrv")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example to get various kinds of imagery. 
+
+Each `server_file()` is a path to a GDAL readable tile server, one of each of the `available_sources()`. 
 
 ```{r example}
 library(gdalwebsrv)
 
 available_sources()
 
-srcfile <- server_file("wms_virtualearth")
-
-raster::brick(srcfile)
-
-stars::read_stars(srcfile, proxy = TRUE)
-
-ex <- c(xmin = 1e7, xmax = 2e7, ymin = -6e6, -1e6)
-
-## not sure how to *read* sensibly from those yet so rely on lazyraster for now
-  library(lazyraster)
-  lr <- lazyraster(srcfile)
-
-  cr <- crop(lr, ex)
-  rr <- raster::brick(as_raster(cr, band = 1), 
-              as_raster(cr, band = 2), 
-            as_raster(cr, band = 3))
-
-  
-  library(raster)
-plotRGB(rr)
+## all this package does is keep a list of these 
+gmap_file <- server_file("wms_googlemaps_tms")
+```
 
 
-read_ex <- function(name, ex) {
-  library(lazyraster)
-  srcfile <- server_file(name)
-  lr <- lazyraster(srcfile)
+Now we might use the server one way or another. 
 
-  cr <- crop(lr, ex)
-  rr <- raster::brick(as_raster(cr, band = 1), 
-              as_raster(cr, band = 2), 
-            as_raster(cr, band = 3))
+```{r read}
+library(gdalio)
+g <- gdalio_graphics(gmap_file)
+plot(g)
 
-  rr
-}
-srcs <- available_sources()
-for (i in seq_along(srcs)) {
-  plotRGB(read_ex(srcs[i], ex))
-  text(ex[2] - 1.5e6, ex[4] - 1e6, lab = srcs[i], col = "white")
-}
+gdalio_set_default_grid(list(extent = c(-1, 1, -1, 1) * 1e6, 
+                            dimension = c(1024, 1024), 
+                            projection = "+proj=laea +lon_0=147 +lat_0=-42"))
+gmap <- gdalio_graphics(gmap_file)
+plot(gmap)
 
+vmap <- gdalio_graphics(server_file("wms_virtualearth"))
+plot(vmap)
+
+temap <-  gdalio_graphics(server_file("wms_googlemaps_terrainextra_tms"))
+plot(temap)
+
+omap <- gdalio_graphics(server_file("wms_openstreetmap_tms"))
+plot(omap)
 
 ```
 
+Something different. 
+
+```{r longlat}
+gdalio_set_default_grid(list(extent = c(-120, -10, -50, 50), 
+                            dimension = c(768, 512)/1.5, 
+                            projection = "+proj=longlat"))
+
+lerc <-  gdalio_matrix(server_file("wms_arcgis_terrain_tms_lerc"), bands = 1)
+image(seq(-120, -10, length.out = nrow(lerc) + 1), 
+          seq(-50, 50, length.out = ncol(lerc) + 1), lerc)
+maps::map(add = TRUE)
+```
 
 ## Code of Conduct
   

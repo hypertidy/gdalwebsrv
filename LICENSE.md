@@ -1,6 +1,10 @@
 # MIT License
 
+<<<<<<< HEAD
 Copyright (c) 2022 gdalwebsrv authors
+=======
+Copyright (c) 2021 gdalwebsrv authors
+>>>>>>> 4815c33444d1cc4f0620fae367dcc243fe28fbee
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

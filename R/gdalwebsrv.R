@@ -1,16 +1,10 @@
-#' @keywords internal
-"_PACKAGE"
-
-# The following block is used by usethis to automatically manage
-# roxygen namespace tags. Modify with care!
-## usethis namespace: start
-## usethis namespace: end
-NULL
 
 #' gdalwebsrv
 #'
 #' Provides files from the GDAL project to access online imagery servers.
 #' @docType package
+#' @name gdalwebsrv-package
+#' @aliases gdalwebsrv
 NULL
 
 #' GDAL web servers
@@ -20,9 +14,11 @@ NULL
 #' `gdal_web_sources` is a data frame of `name`, and `file` which is relative to the installed
 #' package (see Examples).
 #' @docType data
+#' @name gdal_web_sources
+#' @keywords dataset
 #' @examples
 #' system.file(gdal_web_sources$file[1L], package = "gdalwebsrv", mustWork = TRUE)
-'gdal_web_sources'
+"gdal_web_sources"
 
 #' GDAL web source names
 #'
@@ -33,7 +29,7 @@ NULL
 #' @examples
 #' available_sources()
 available_sources <- function() {
-  c(gdal_web_sources[["name"]], aws_web_sources[["name"]])
+  gdalwebsrv::gdal_web_sources[["name"]]
 }
 
 #' GDAL web sources files
@@ -51,13 +47,10 @@ available_sources <- function() {
 #' server_file(gdal_web_sources$name[1L])
 server_file <- function(name) {
   name <- name[1L]
-  sources <- web_sources  ## here we might have more ways of getting
-  ## note kludgy reconstruction of actual file (FIXME)
-  pos <- match(sprintf("frmt_%s.xml", name), basename(sources[["file"]]))
-  if (is.na(pos)) pos <- grep(name, basename(sources[["file"]]))
-
+  ## note kludgy reconstruction of actual file
+  pos <- match(sprintf("frmt_%s.xml", name), basename(gdalwebsrv::gdal_web_sources[["file"]]))
   if (is.na(pos)) stop(sprintf("cannot find server %s", name))
-  system.file(sources[["file"]][pos], package = "gdalwebsrv", mustWork = TRUE)
+  system.file(gdalwebsrv::gdal_web_sources[["file"]][pos], package = "gdalwebsrv", mustWork = TRUE)
 }
 
 #' GDAL terrain source (LERC)
@@ -70,4 +63,3 @@ server_file <- function(name) {
 lerc_file <- function() {
   system.file("gdalwmsxml/frmt_wms_arcgis_terrain_tms_lerc.xml", package = "gdalwebsrv", mustWork = TRUE)
 }
-
