@@ -34,7 +34,7 @@ ok <- unlist(lapply(chek, \(x) x$read_ok))
 files1 <- files[ok]
 
 library(purrr)
-gdalwms_sources <- tibble::tibble(name = gsub("\\.xml$", "", gsub("^frmt_", "", basename(files1))),
+gdaltms_sources <- tibble::tibble(name = gsub("\\.xml$", "", gsub("^frmt_", "", basename(files1))),
                                    source = map_chr(files1, ~ paste0(map_chr(readLines(.x), trimws), collapse = "")))
 
 
