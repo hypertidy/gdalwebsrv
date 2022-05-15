@@ -1,3 +1,35 @@
+bm <- read.table(header = TRUE, sep = "/", text =
+
+"base/layer
+Basemaps/AerialPhoto2020
+Basemaps/AerialPhoto2021
+Basemaps/AerialPhoto2022
+Basemaps/ESgisMapBookPUBLIC
+Basemaps/HillshadeGrey
+Basemaps/Hillshade
+Basemaps/Orthophoto
+Basemaps/SimpleBasemap
+Basemaps/Tasmap100K
+Basemaps/Tasmap250K
+Basemaps/Tasmap25K
+Basemaps/Tasmap500K
+Basemaps/TasmapRaster
+Basemaps/TopographicGrayScale
+Basemaps/Topographic
+Raster/AerialPhoto2015_16
+Raster/AerialPhoto2016_17
+Raster/AerialPhoto2018_19
+Raster/HistoricAerialPhoto
+Raster/LandDistrictChart
+Raster/SprentsBook
+Raster/TownGrantCharts
+Raster/TTSA")
+
+## left out RasterMisc
+wmts <-   "WMTS:https://services.thelist.tas.gov.au/arcgis/rest/services/%s/%s/MapServer/WMTS/1.0.0/WMTSCapabilities.xml,layer=%s_%s,tilematrixset=default028mm"
+
+tasmap_sources <- tibble::tibble(name = bm$layer, source = sprintf(wmts, bm$base, bm$layer, bm$base, bm$layer))
+
 tasmap_sources <- tibble::tribble(
   ~name, ~source,
   "TTSA",
