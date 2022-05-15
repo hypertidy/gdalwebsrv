@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ##"https://raw.githubusercontent.com/OSGeo/gdal/master/gdal/frmts/wms/frmt_wms_arcgis_mapserver_tms.xml"
 
 ## originally we got them from gdal
